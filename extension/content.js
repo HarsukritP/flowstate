@@ -161,11 +161,70 @@ class FlowStateSpotifyIntegration {
     
     detectCurrentSong() {
         try {
-            // Extract current song info from Spotify's now playing widget
-            const trackName = document.querySelector('[data-testid="now-playing-widget"] a[dir="auto"]')?.textContent;
-            const artistName = document.querySelector('[data-testid="now-playing-widget"] span[dir="auto"]')?.textContent;
+            // Multiple selectors to find current song info
+            let trackName = null;
+            let artistName = null;
             
-            if (trackName && artistName) {
+            // Try different selectors for the now-playing area
+            const selectors = [
+                // Main now-playing widget
+                '[data-testid="now-playing-widget"] a[dir="auto"]',
+                '[data-testid="now-playing-widget"] [data-testid="context-item-link"]',
+                // Footer player
+                'footer a[dir="auto"]',
+                // Alternative selectors
+                '[data-testid="now-playing-widget"] .main-trackInfo-name',
+                '[data-testid="now-playing-widget"] .main-entityHeader-subtitle'
+            ];
+            
+            for (const selector of selectors) {
+                const element = document.querySelector(selector);
+                if (element?.textContent?.trim()) {
+                    trackName = element.textContent.trim();
+                    console.log(`🎵 Found track name with selector "${selector}":`, trackName);
+                    break;
+                }
+            }
+            
+            // Try to find artist name
+            const artistSelectors = [
+                '[data-testid="now-playing-widget"] span[dir="auto"]',
+                '[data-testid="now-playing-widget"] .main-trackInfo-artists',
+                'footer span[dir="auto"]',
+                '[data-testid="now-playing-widget"] a[href*="/artist/"]'
+            ];
+            
+            for (const selector of artistSelectors) {
+                const element = document.querySelector(selector);
+                if (element?.textContent?.trim() && element.textContent !== trackName) {
+                    artistName = element.textContent.trim();
+                    console.log(`🎵 Found artist name with selector "${selector}":`, artistName);
+                    break;
+                }
+            }
+            
+            // Fallback: try to extract from any visible text
+            if (!trackName || !artistName) {
+                const nowPlayingWidget = document.querySelector('[data-testid="now-playing-widget"]');
+                if (nowPlayingWidget) {
+                    const allLinks = nowPlayingWidget.querySelectorAll('a[dir="auto"]');
+                    const allSpans = nowPlayingWidget.querySelectorAll('span[dir="auto"]');
+                    
+                    console.log('🔍 All links in now-playing:', Array.from(allLinks).map(l => l.textContent));
+                    console.log('🔍 All spans in now-playing:', Array.from(allSpans).map(s => s.textContent));
+                    
+                    if (allLinks.length > 0 && !trackName) {
+                        trackName = allLinks[0].textContent?.trim();
+                    }
+                    if (allSpans.length > 0 && !artistName) {
+                        artistName = allSpans[0].textContent?.trim();
+                    }
+                }
+            }
+            
+            console.log('🎵 Detection results:', { trackName, artistName });
+            
+            if (trackName && artistName && trackName !== artistName) {
                 const newSong = {
                     id: `spotify_${Date.now()}`,
                     title: trackName,
@@ -175,12 +234,14 @@ class FlowStateSpotifyIntegration {
                 
                 if (!this.currentSong || this.currentSong.title !== newSong.title) {
                     this.currentSong = newSong;
-                    console.log('🎵 Current song detected:', newSong);
+                    console.log('✅ Current song detected:', newSong);
                     
                     if (this.flowStateActive) {
                         this.updateProgress();
                     }
                 }
+            } else {
+                console.warn('⚠️ Could not detect song properly:', { trackName, artistName });
             }
         } catch (error) {
             console.warn('⚠️ Error detecting current song:', error);
