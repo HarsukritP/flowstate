@@ -8,7 +8,8 @@
     "activeTab",
     "storage",
     "contextMenus",
-    "notifications"
+    "notifications",
+    "scripting"
   ],
   
   "host_permissions": [
@@ -56,8 +57,7 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "flowstate-panel.html",
-        "assets/*"
+        "icons/*"
       ],
       "matches": [
         "https://open.spotify.com/*"

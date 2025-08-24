@@ -173,35 +173,34 @@ function showNotification(title, options) {
     });
 }
 
-// Periodic health check
-setInterval(() => {
-    // Check if FlowState backend is accessible
-    fetch('https://flowstate.up.railway.app/health')
-        .then(response => response.json())
-        .then(data => {
-            console.log('🏥 Health check passed:', data);
-            
-            // Update connection status
-            chrome.storage.local.set({
-                flowstate_connection: {
-                    status: 'connected',
-                    lastCheck: Date.now(),
-                    serverInfo: data
-                }
-            });
-        })
-        .catch(error => {
-            console.warn('⚠️ Health check failed:', error);
-            
-            chrome.storage.local.set({
-                flowstate_connection: {
-                    status: 'disconnected',
-                    lastCheck: Date.now(),
-                    error: error.message
-                }
-            });
+// Health check function (called on demand rather than interval)
+async function checkBackendHealth() {
+    try {
+        const response = await fetch('https://flowstate.up.railway.app/health');
+        const data = await response.json();
+        console.log('🏥 Health check passed:', data);
+        
+        chrome.storage.local.set({
+            flowstate_connection: {
+                status: 'connected',
+                lastCheck: Date.now(),
+                serverInfo: data
+            }
         });
-}, 30000); // Check every 30 seconds
+        return true;
+    } catch (error) {
+        console.warn('⚠️ Health check failed:', error);
+        
+        chrome.storage.local.set({
+            flowstate_connection: {
+                status: 'disconnected',
+                lastCheck: Date.now(),
+                error: error.message
+            }
+        });
+        return false;
+    }
+}
 
 // Context menus are created in the main onInstalled listener above
 
@@ -221,36 +220,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     }
 });
 
-// Handle keyboard shortcuts
-chrome.commands.onCommand.addListener((command) => {
-    console.log('⌨️ Keyboard command:', command);
-    
-    switch (command) {
-        case 'generate-queue':
-            // Find active Spotify tab and generate queue
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                const activeTab = tabs[0];
-                if (activeTab.url?.includes('open.spotify.com')) {
-                    chrome.tabs.sendMessage(activeTab.id, {
-                        type: 'GENERATE_QUEUE_SHORTCUT'
-                    });
-                }
-            });
-            break;
-            
-        case 'toggle-flowstate':
-            // Toggle FlowState panel
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                const activeTab = tabs[0];
-                if (activeTab.url?.includes('open.spotify.com')) {
-                    chrome.tabs.sendMessage(activeTab.id, {
-                        type: 'TOGGLE_FLOWSTATE_PANEL'
-                    });
-                }
-            });
-            break;
-    }
-});
+// Keyboard shortcuts removed for MVP - can be added later with proper commands configuration
 
 // Analytics and usage tracking (privacy-friendly)
 function trackUsage(event, data = {}) {
