@@ -222,7 +222,7 @@ class FlowStateSpotifyIntegration {
                 }
             }
             
-            console.log('🎵 Detection results:', { trackName, artistName });
+            console.log('🎵 Detection results:', `Track: "${trackName}", Artist: "${artistName}"`);
             
             if (trackName && artistName && trackName !== artistName) {
                 const newSong = {
@@ -241,7 +241,7 @@ class FlowStateSpotifyIntegration {
                     }
                 }
             } else {
-                console.warn('⚠️ Could not detect song properly:', { trackName, artistName });
+                console.warn('⚠️ Could not detect song properly:', `Track: "${trackName}", Artist: "${artistName}"`);
             }
         } catch (error) {
             console.warn('⚠️ Error detecting current song:', error);
@@ -256,8 +256,20 @@ class FlowStateSpotifyIntegration {
     }
     
     async generateFlowQueue() {
+        // Force re-detection before generating queue
+        this.detectCurrentSong();
+        
         if (!this.currentSong) {
-            alert('🎵 Please play a song first to generate a FlowState queue');
+            // Try one more time with a slight delay
+            setTimeout(() => {
+                this.detectCurrentSong();
+                if (!this.currentSong) {
+                    alert('🎵 Please play a song first to generate a FlowState queue');
+                    return;
+                } else {
+                    this.generateFlowQueue();
+                }
+            }, 1000);
             return;
         }
         
