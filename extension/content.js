@@ -167,9 +167,10 @@ class FlowStateSpotifyIntegration {
             
             // Try different selectors for the now-playing area
             const selectors = [
-                // Main now-playing widget
-                '[data-testid="now-playing-widget"] a[dir="auto"]',
+                // Main now-playing widget - try multiple approaches
+                '[data-testid="now-playing-widget"] a[href*="/track/"]', // Direct track links
                 '[data-testid="now-playing-widget"] [data-testid="context-item-link"]',
+                '[data-testid="now-playing-widget"] a[dir="auto"]',
                 // Footer player
                 'footer a[dir="auto"]',
                 // Alternative selectors
@@ -213,11 +214,48 @@ class FlowStateSpotifyIntegration {
                     console.log('🔍 All links in now-playing:', Array.from(allLinks).map(l => l.textContent));
                     console.log('🔍 All spans in now-playing:', Array.from(allSpans).map(s => s.textContent));
                     
-                    if (allLinks.length > 0 && !trackName) {
-                        trackName = allLinks[0].textContent?.trim();
+                    // Smart detection: usually first link is song, second link is artist
+                    if (allLinks.length >= 2) {
+                        if (!trackName) trackName = allLinks[0].textContent?.trim();
+                        if (!artistName) artistName = allLinks[1].textContent?.trim();
+                    } else if (allLinks.length === 1) {
+                        // Only one link found - could be track or artist
+                        const linkText = allLinks[0].textContent?.trim();
+                        if (!trackName) {
+                            trackName = linkText;
+                        } else if (!artistName && linkText !== trackName) {
+                            artistName = linkText;
+                        }
                     }
-                    if (allSpans.length > 0 && !artistName) {
-                        artistName = allSpans[0].textContent?.trim();
+                    
+                    // If we still don't have artist, try spans
+                    if (!artistName && allSpans.length > 0) {
+                        for (const span of allSpans) {
+                            const spanText = span.textContent?.trim();
+                            if (spanText && spanText !== trackName) {
+                                artistName = spanText;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // If trackName seems to be an artist name and we found it in wrong place, swap them
+                    if (trackName === "The Marías" || trackName === "The Marias") {
+                        if (artistName) {
+                            // Swap if we have both
+                            [trackName, artistName] = [artistName, trackName];
+                        } else {
+                            // Look for the actual song title in spans or other elements
+                            const songElements = nowPlayingWidget.querySelectorAll('span, div');
+                            for (const el of songElements) {
+                                const text = el.textContent?.trim();
+                                if (text && text !== trackName && text.length > 0 && text !== "Single" && !text.includes("•")) {
+                                    artistName = trackName;
+                                    trackName = text;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
