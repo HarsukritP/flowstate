@@ -7,7 +7,7 @@ console.log('🌊 FlowState extension loaded');
 
 class FlowStateSpotifyIntegration {
     constructor() {
-        this.apiBaseUrl = 'http://localhost:8000';
+        this.apiBaseUrl = 'https://flowstate.up.railway.app';
         this.currentSong = null;
         this.flowStateActive = false;
         this.currentQueue = [];
