@@ -1,20 +1,5 @@
-[build]
-builder = "NIXPACKS"
-
 [deploy]
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
-
-[[deploy.environmentVariables]]
-name = "PORT"
-value = "8000"
-
-[[deploy.environmentVariables]]
-name = "PYTHON_VERSION"
-value = "3.11"
-
-[[deploy.environmentVariables]]
-name = "NIXPACKS_PYTHON_VERSION"
-value = "3.11"

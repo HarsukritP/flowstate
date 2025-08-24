@@ -3,13 +3,20 @@ FlowState Audio Analyzer
 Extracts musical and emotional features from audio using librosa and ML models
 """
 
-import librosa
 import numpy as np
 import asyncio
 import time
 from typing import Dict, List, Optional, Tuple
 import logging
 from dataclasses import dataclass
+
+# Optional librosa import for production deployment
+try:
+    import librosa
+    LIBROSA_AVAILABLE = True
+except ImportError:
+    LIBROSA_AVAILABLE = False
+    logging.warning("Librosa not available - using mock audio analysis only")
 
 from .models import Song, AudioFeatures, EmotionalProfile
 
@@ -60,7 +67,10 @@ class AudioAnalyzer:
             'nostalgic': ['memory', 'old', 'vintage', 'classic', 'reminisce']
         }
         
-        logger.info("🎵 AudioAnalyzer initialized")
+        if LIBROSA_AVAILABLE:
+            logger.info("🎵 AudioAnalyzer initialized with librosa")
+        else:
+            logger.info("🎵 AudioAnalyzer initialized in mock mode (librosa not available)")
 
     async def extract_features(self, song: Song) -> AudioFeatures:
         """
