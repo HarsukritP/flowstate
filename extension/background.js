@@ -85,13 +85,30 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && tab.url?.includes('open.spotify.com')) {
         console.log('🎵 Spotify tab detected');
         
-        // Inject content script if needed
+        // Check if content script is already injected before injecting
         chrome.scripting.executeScript({
             target: { tabId: tabId },
-            files: ['content.js']
+            func: () => window.flowStateInjected || false
+        }).then(results => {
+            if (!results[0]?.result) {
+                // Not injected yet, inject now
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    files: ['content.js']
+                }).catch(err => {
+                    console.log('Content script injection result:', err.message);
+                });
+            } else {
+                console.log('✅ FlowState already injected in this tab');
+            }
         }).catch(err => {
-            // Script already injected or failed
-            console.log('Content script injection result:', err.message);
+            // Tab not accessible or other error, try injecting anyway
+            chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                files: ['content.js']
+            }).catch(err => {
+                console.log('Content script injection result:', err.message);
+            });
         });
     }
 });

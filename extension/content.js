@@ -3,7 +3,12 @@
  * Integrates with Spotify Web Player to provide AI-powered queue optimization
  */
 
-console.log('🌊 FlowState extension loaded');
+// Prevent multiple injections
+if (window.flowStateInjected) {
+    console.log('🌊 FlowState already injected, skipping...');
+} else {
+    window.flowStateInjected = true;
+    console.log('🌊 FlowState extension loaded');
 
 class FlowStateSpotifyIntegration {
     constructor() {
@@ -367,3 +372,5 @@ if (document.readyState === 'loading') {
 } else {
     new FlowStateSpotifyIntegration();
 }
+
+} // End of flowStateInjected check
