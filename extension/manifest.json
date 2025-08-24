@@ -1,0 +1,66 @@
+{
+  "manifest_version": 3,
+  "name": "FlowState - AI Music Queue Optimization",
+  "version": "0.1.0",
+  "description": "AI-powered emotional music queue optimization for Spotify Web Player",
+  
+  "permissions": [
+    "activeTab",
+    "storage",
+    "background"
+  ],
+  
+  "host_permissions": [
+    "https://open.spotify.com/*",
+    "http://localhost:8000/*"
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": [
+        "https://open.spotify.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "flowstate.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FlowState Settings",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "flowstate-panel.html",
+        "assets/*"
+      ],
+      "matches": [
+        "https://open.spotify.com/*"
+      ]
+    }
+  ]
+}

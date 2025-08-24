@@ -1,0 +1,295 @@
+/* FlowState Chrome Extension Styles */
+
+/* FlowState Button Integration */
+.flowstate-btn {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.flowstate-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    background: linear-gradient(135deg, #5855f0, #7c3aed);
+}
+
+.flowstate-btn:active {
+    transform: translateY(0);
+}
+
+/* Queue Preview Panel */
+.flowstate-queue-preview {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 400px;
+    max-height: 80vh;
+    background: linear-gradient(145deg, #1f2937, #111827);
+    border: 1px solid #374151;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.flowstate-queue-preview.hidden {
+    opacity: 0;
+    transform: translateX(100%);
+    pointer-events: none;
+}
+
+/* Header */
+.flowstate-header {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #374151;
+}
+
+.flowstate-header h3 {
+    color: white;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.flowstate-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.flowstate-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Status Section */
+.flowstate-status {
+    padding: 16px 20px;
+    border-bottom: 1px solid #374151;
+    background: #1f2937;
+}
+
+.flowstate-journey {
+    color: #d1d5db;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.flowstate-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 6px;
+    background: #374151;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #06b6d4);
+    transition: width 0.5s ease;
+    border-radius: 3px;
+}
+
+#progress-text {
+    color: #9ca3af;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* Queue List */
+.flowstate-queue-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.flowstate-song-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #374151;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.flowstate-song-item:hover {
+    background-color: #374151;
+}
+
+.flowstate-song-item.current-song {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
+    border-left: 3px solid #10b981;
+}
+
+.playing-indicator {
+    color: #10b981;
+    font-weight: bold;
+    margin-right: 12px;
+    font-size: 12px;
+}
+
+.song-info {
+    flex: 1;
+}
+
+.song-title {
+    color: #f9fafb;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 2px;
+    line-height: 1.3;
+}
+
+.song-artist {
+    color: #9ca3af;
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+.emotional-transition {
+    color: #8b5cf6;
+    font-size: 11px;
+    font-weight: 500;
+    background: rgba(139, 92, 246, 0.15);
+    padding: 4px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+/* Actions */
+.flowstate-actions {
+    padding: 16px 20px;
+    display: flex;
+    gap: 8px;
+    background: #111827;
+    border-top: 1px solid #374151;
+}
+
+.flowstate-action-btn {
+    flex: 1;
+    background: #374151;
+    color: #d1d5db;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.flowstate-action-btn:hover {
+    background: #4b5563;
+    color: #f9fafb;
+}
+
+/* Loading and Error States */
+.loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.error {
+    text-align: center;
+    padding: 20px;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    margin: 16px 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Scrollbar Styling */
+.flowstate-queue-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.flowstate-queue-list::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+.flowstate-queue-list::-webkit-scrollbar-thumb {
+    background: #6b7280;
+    border-radius: 3px;
+}
+
+.flowstate-queue-list::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Animation for queue updates */
+.flowstate-song-item {
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .flowstate-queue-preview {
+        width: calc(100vw - 40px);
+        right: 20px;
+        left: 20px;
+    }
+}
+
+/* Dark theme compatibility */
+body.dark .flowstate-queue-preview {
+    background: linear-gradient(145deg, #0f172a, #020617);
+    border-color: #1e293b;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .flowstate-btn {
+        border: 2px solid #ffffff;
+    }
+    
+    .flowstate-queue-preview {
+        border: 2px solid #ffffff;
+    }
+}

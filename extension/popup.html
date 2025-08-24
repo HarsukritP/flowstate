@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowState Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 320px;
+            min-height: 400px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(145deg, #1f2937, #111827);
+            color: #f9fafb;
+            padding: 0;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .setting-group {
+            margin-bottom: 24px;
+        }
+        
+        .setting-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #d1d5db;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .radio-option:hover {
+            background-color: #374151;
+        }
+        
+        .radio-option input[type="radio"] {
+            accent-color: #6366f1;
+        }
+        
+        .radio-option label {
+            cursor: pointer;
+            font-size: 13px;
+            flex: 1;
+        }
+        
+        .slider-container {
+            margin-top: 8px;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #374151;
+            appearance: none;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+        
+        .status {
+            background: #374151;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-value {
+            color: #10b981;
+            font-weight: 500;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .quick-action-btn {
+            background: #374151;
+            color: #d1d5db;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 8px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        
+        .quick-action-btn:hover {
+            background: #4b5563;
+            color: #f9fafb;
+        }
+        
+        .footer {
+            padding: 16px 20px;
+            text-align: center;
+            border-top: 1px solid #374151;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        
+        .footer a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌊 FlowState</h1>
+        <p>AI-Powered Music Flow Optimization</p>
+    </div>
+    
+    <div class="content">
+        <div class="status">
+            <div class="status-item">
+                <span>Connection Status</span>
+                <span class="status-value" id="connection-status">Connected</span>
+            </div>
+            <div class="status-item">
+                <span>Songs Analyzed</span>
+                <span class="status-value" id="songs-analyzed">247</span>
+            </div>
+            <div class="status-item">
+                <span>Avg Response Time</span>
+                <span class="status-value" id="response-time">85ms</span>
+            </div>
+            <div class="status-item">
+                <span>Flow Quality</span>
+                <span class="status-value" id="flow-quality">4.7/5.0 ★</span>
+            </div>
+        </div>
+        
+        <div class="setting-group">
+            <div class="setting-label">Emotional Journey Type</div>
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" id="gradual-flow" name="journey" value="gradual_flow" checked>
+                    <label for="gradual-flow">Gradual Flow</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="maintain-vibe" name="journey" value="maintain_vibe">
+                    <label for="maintain-vibe">Maintain Vibe</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="adventure-mode" name="journey" value="adventure_mode">
+                    <label for="adventure-mode">Adventure Mode</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="setting-group">
+            <div class="setting-label">Queue Length</div>
+            <div class="slider-container">
+                <input type="range" min="5" max="25" value="10" class="slider" id="queue-length">
+                <div class="slider-labels">
+                    <span>5 songs</span>
+                    <span id="queue-length-value">10 songs</span>
+                    <span>25 songs</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="setting-group">
+            <div class="setting-label">Flow Sensitivity</div>
+            <div class="slider-container">
+                <input type="range" min="1" max="10" value="6" class="slider" id="flow-sensitivity">
+                <div class="slider-labels">
+                    <span>Gentle</span>
+                    <span>Dramatic</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-actions">
+            <button class="quick-action-btn" data-journey="meditative">🧘 Meditate</button>
+            <button class="quick-action-btn" data-journey="pump_up">⚡ Pump Up</button>
+            <button class="quick-action-btn" data-journey="wind_down">💤 Wind Down</button>
+            <button class="quick-action-btn" data-journey="adventure_mode">🎉 Adventure</button>
+        </div>
+    </div>
+    
+    <div class="footer">
+        Built with ❤️ for music lovers · <a href="#" id="help-link">Help</a>
+    </div>
+    
+    <script>
+        // Settings management
+        class FlowStateSettings {
+            constructor() {
+                this.settings = {
+                    journey: 'gradual_flow',
+                    queueLength: 10,
+                    flowSensitivity: 6
+                };
+                
+                this.loadSettings();
+                this.bindEvents();
+                this.updateUI();
+            }
+            
+            loadSettings() {
+                chrome.storage.sync.get(['flowstate_settings'], (result) => {
+                    if (result.flowstate_settings) {
+                        this.settings = { ...this.settings, ...result.flowstate_settings };
+                        this.updateUI();
+                    }
+                });
+            }
+            
+            saveSettings() {
+                chrome.storage.sync.set({ flowstate_settings: this.settings });
+            }
+            
+            bindEvents() {
+                // Journey type radio buttons
+                document.querySelectorAll('input[name="journey"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        this.settings.journey = e.target.value;
+                        this.saveSettings();
+                    });
+                });
+                
+                // Queue length slider
+                const queueSlider = document.getElementById('queue-length');
+                queueSlider.addEventListener('input', (e) => {
+                    this.settings.queueLength = parseInt(e.target.value);
+                    document.getElementById('queue-length-value').textContent = `${e.target.value} songs`;
+                    this.saveSettings();
+                });
+                
+                // Flow sensitivity slider
+                const flowSlider = document.getElementById('flow-sensitivity');
+                flowSlider.addEventListener('input', (e) => {
+                    this.settings.flowSensitivity = parseInt(e.target.value);
+                    this.saveSettings();
+                });
+                
+                // Quick action buttons
+                document.querySelectorAll('.quick-action-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const journey = e.target.getAttribute('data-journey');
+                        this.settings.journey = journey;
+                        
+                        // Update radio button
+                        document.querySelector(`input[value="${journey}"]`).checked = true;
+                        
+                        this.saveSettings();
+                        this.sendQuickAction(journey);
+                    });
+                });
+            }
+            
+            updateUI() {
+                // Update radio buttons
+                document.querySelector(`input[value="${this.settings.journey}"]`).checked = true;
+                
+                // Update sliders
+                document.getElementById('queue-length').value = this.settings.queueLength;
+                document.getElementById('queue-length-value').textContent = `${this.settings.queueLength} songs`;
+                document.getElementById('flow-sensitivity').value = this.settings.flowSensitivity;
+            }
+            
+            sendQuickAction(journey) {
+                // Send message to content script to trigger quick action
+                chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                    chrome.tabs.sendMessage(tabs[0].id, {
+                        type: 'QUICK_ACTION',
+                        journey: journey,
+                        settings: this.settings
+                    });
+                });
+                
+                // Close popup after action
+                setTimeout(() => window.close(), 300);
+            }
+        }
+        
+        // Initialize settings when popup opens
+        document.addEventListener('DOMContentLoaded', () => {
+            new FlowStateSettings();
+            
+            // Update status indicators
+            updateStatus();
+        });
+        
+        function updateStatus() {
+            // These would be real stats in production
+            const stats = {
+                connection: 'Connected',
+                songsAnalyzed: Math.floor(Math.random() * 500) + 200,
+                responseTime: Math.floor(Math.random() * 50) + 60 + 'ms',
+                flowQuality: (4.5 + Math.random() * 0.5).toFixed(1) + '/5.0 ★'
+            };
+            
+            document.getElementById('connection-status').textContent = stats.connection;
+            document.getElementById('songs-analyzed').textContent = stats.songsAnalyzed;
+            document.getElementById('response-time').textContent = stats.responseTime;
+            document.getElementById('flow-quality').textContent = stats.flowQuality;
+        }
+    </script>
+</body>
+</html>
