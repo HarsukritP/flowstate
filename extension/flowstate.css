@@ -2,20 +2,25 @@
 
 /* FlowState Button Integration */
 .flowstate-btn {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-left: 12px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 20px !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    margin-left: 12px !important;
+    transition: all 0.3s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3) !important;
+    z-index: 9999 !important;
+    position: relative !important;
+    text-decoration: none !important;
+    min-height: 32px !important;
+    line-height: 1 !important;
 }
 
 .flowstate-btn:hover {
