@@ -7,12 +7,13 @@
   "permissions": [
     "activeTab",
     "storage",
-    "background"
+    "contextMenus",
+    "notifications"
   ],
   
   "host_permissions": [
     "https://open.spotify.com/*",
-    "http://localhost:8000/*"
+    "https://flowstate.up.railway.app/*"
   ],
   
   "background": {

@@ -29,6 +29,25 @@ chrome.runtime.onInstalled.addListener((details) => {
     } else if (details.reason === 'update') {
         console.log('🔄 FlowState extension updated');
     }
+    
+    // Create context menu for Spotify pages (only once on install/update)
+    try {
+        chrome.contextMenus.create({
+            id: 'flowstate-generate',
+            title: '🌊 Generate FlowState Queue',
+            contexts: ['page'],
+            documentUrlPatterns: ['https://open.spotify.com/*']
+        });
+        
+        chrome.contextMenus.create({
+            id: 'flowstate-settings',
+            title: '⚙️ FlowState Settings',
+            contexts: ['page'],
+            documentUrlPatterns: ['https://open.spotify.com/*']
+        });
+    } catch (error) {
+        console.log('Context menu creation skipped:', error.message);
+    }
 });
 
 // Handle messages from content scripts and popup
@@ -157,7 +176,7 @@ function showNotification(title, options) {
 // Periodic health check
 setInterval(() => {
     // Check if FlowState backend is accessible
-    fetch('http://localhost:8000/health')
+    fetch('https://flowstate.up.railway.app/health')
         .then(response => response.json())
         .then(data => {
             console.log('🏥 Health check passed:', data);
@@ -184,23 +203,7 @@ setInterval(() => {
         });
 }, 30000); // Check every 30 seconds
 
-// Handle extension context menu (right-click options)
-chrome.runtime.onInstalled.addListener(() => {
-    // Create context menu for Spotify pages
-    chrome.contextMenus.create({
-        id: 'flowstate-generate',
-        title: '🌊 Generate FlowState Queue',
-        contexts: ['page'],
-        documentUrlPatterns: ['https://open.spotify.com/*']
-    });
-    
-    chrome.contextMenus.create({
-        id: 'flowstate-settings',
-        title: '⚙️ FlowState Settings',
-        contexts: ['page'],
-        documentUrlPatterns: ['https://open.spotify.com/*']
-    });
-});
+// Context menus are created in the main onInstalled listener above
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     switch (info.menuItemId) {
@@ -270,13 +273,5 @@ function trackUsage(event, data = {}) {
     });
 }
 
-// Export for testing
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        handleQueueGenerated,
-        handleSongChanged,
-        handleError,
-        updateStats,
-        trackUsage
-    };
-}
+// FlowState background service worker ready
+console.log('✅ FlowState background service worker initialized');
