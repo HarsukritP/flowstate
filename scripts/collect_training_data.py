@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 FlowState Training Data Collection
-Collects real song data from Spotify API for model training
+Collects real song sequences from Spotify playlists for ML training on queue optimization
 """
 
 import asyncio
@@ -52,8 +52,124 @@ class SpotifyDataCollector:
         
         logger.info("🎵 Spotify data collector initialized")
 
+    async def collect_playlist_sequences(self, target_sequences: int = 100) -> List[Dict]:
+        """Collect song sequences from Spotify playlists for queue optimization training"""
+        logger.info(f"🎯 Collecting {target_sequences} playlist sequences for ML training")
+        
+        sequences = []
+        try:
+            # Categories to get diverse playlist types
+            categories = [
+                'chill', 'pop', 'indie', 'rock', 'electronic', 'classical',
+                'jazz', 'country', 'hip-hop', 'workout', 'mood', 'focus'
+            ]
+            
+            for category in categories:
+                if len(sequences) >= target_sequences:
+                    break
+                    
+                logger.info(f"📂 Processing category: {category}")
+                
+                # Get category playlists
+                try:
+                    category_playlists = self.spotify.category_playlists(
+                        category_id=category, limit=10
+                    )['playlists']['items']
+                except:
+                    # If category doesn't exist, try featured playlists
+                    category_playlists = self.spotify.featured_playlists(limit=5)['playlists']['items']
+                
+                for playlist in category_playlists:
+                    if len(sequences) >= target_sequences:
+                        break
+                        
+                    sequence = await self._extract_playlist_sequence(playlist, category)
+                    if sequence and len(sequence['tracks']) >= 5:  # Minimum viable sequence
+                        sequences.append(sequence)
+                        logger.info(f"✅ Extracted sequence from '{playlist['name']}' ({len(sequence['tracks'])} tracks)")
+                    
+                    time.sleep(self.rate_limit_delay)  # Rate limiting
+                    
+        except Exception as e:
+            logger.error(f"❌ Error collecting playlist sequences: {str(e)}")
+            
+        logger.info(f"🎉 Collected {len(sequences)} playlist sequences")
+        return sequences
+
+    async def _extract_playlist_sequence(self, playlist: Dict, category: str) -> Optional[Dict]:
+        """Extract a song sequence from a single playlist"""
+        try:
+            # Get all tracks from playlist (up to 100)
+            tracks_response = self.spotify.playlist_tracks(playlist['id'], limit=100)
+            tracks = tracks_response['items']
+            
+            # Extract track sequence with metadata
+            track_sequence = []
+            spotify_ids = []
+            
+            for i, item in enumerate(tracks):
+                if not item['track'] or item['track']['type'] != 'track':
+                    continue
+                    
+                track = item['track']
+                
+                # Basic track info
+                track_info = {
+                    'position': i,
+                    'spotify_id': track['id'],
+                    'title': track['name'],
+                    'artist': track['artists'][0]['name'] if track['artists'] else 'Unknown',
+                    'album': track['album']['name'] if track['album'] else '',
+                    'duration_ms': track['duration_ms'],
+                    'popularity': track['popularity'],
+                    'explicit': track['explicit']
+                }
+                
+                track_sequence.append(track_info)
+                spotify_ids.append(track['id'])
+            
+            if len(track_sequence) < 5:  # Skip very short playlists
+                return None
+            
+            # Get audio features for all tracks
+            audio_features = await self.get_audio_features(spotify_ids)
+            
+            # Add audio features to tracks
+            for track in track_sequence:
+                if track['spotify_id'] in audio_features:
+                    features = audio_features[track['spotify_id']]
+                    track['audio_features'] = {
+                        'tempo': features['tempo'],
+                        'key': features['key'],
+                        'mode': features['mode'],
+                        'energy': features['energy'],
+                        'valence': features['valence'],
+                        'danceability': features['danceability'],
+                        'acousticness': features['acousticness'],
+                        'instrumentalness': features['instrumentalness'],
+                        'loudness': features['loudness'],
+                        'speechiness': features['speechiness'],
+                        'liveness': features['liveness']
+                    }
+            
+            # Return sequence with metadata
+            return {
+                'sequence_id': f"{category}_{playlist['id']}",
+                'playlist_name': playlist['name'],
+                'playlist_description': playlist.get('description', ''),
+                'category': category,
+                'follower_count': playlist['followers']['total'],
+                'track_count': len(track_sequence),
+                'tracks': track_sequence,
+                'collected_at': time.time()
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Error extracting sequence from playlist {playlist['name']}: {str(e)}")
+            return None
+
     async def collect_featured_playlists(self, limit: int = 20) -> List[Dict]:
-        """Collect songs from Spotify's featured playlists"""
+        """Collect songs from Spotify's featured playlists (legacy method)"""
         logger.info(f"🎯 Collecting songs from featured playlists (limit: {limit})")
         
         songs = []
@@ -68,7 +184,7 @@ class SpotifyDataCollector:
                 tracks = self.spotify.playlist_tracks(playlist['id'], limit=50)['items']
                 
                 for item in tracks:
-                    if not item['track'] or not item['track']['preview_url']:
+                    if not item['track']:
                         continue
                         
                     track = item['track']
@@ -80,7 +196,7 @@ class SpotifyDataCollector:
                         'album': track['album']['name'],
                         'duration_ms': track['duration_ms'],
                         'spotify_id': track['id'],
-                        'preview_url': track['preview_url'],
+                        'preview_url': track.get('preview_url'),
                         'popularity': track['popularity']
                     }
                     
@@ -95,7 +211,7 @@ class SpotifyDataCollector:
         except Exception as e:
             logger.error(f"❌ Error collecting playlists: {str(e)}")
             
-        logger.info(f"✅ Collected {len(songs)} songs with preview URLs")
+        logger.info(f"✅ Collected {len(songs)} songs")
         return songs[:limit]
 
     async def get_audio_features(self, spotify_ids: List[str]) -> Dict[str, Dict]:
@@ -279,23 +395,62 @@ class SpotifyDataCollector:
         return processed_songs
 
 async def main():
-    """Run training data collection"""
+    """Run comprehensive training data collection for queue optimization ML"""
     collector = SpotifyDataCollector()
     
-    # Collect training data (start with 50 songs for initial training)
-    dataset = await collector.collect_training_dataset(num_songs=50)
-    
-    print(f"\n🎉 Training data collection complete!")
-    print(f"📊 Total songs processed: {len(dataset)}")
-    print(f"📁 Data saved in: training_data/")
-    print(f"🎵 Audio files: training_data/audio/")
-    print(f"📋 Metadata: training_data/metadata/")
-    
-    if dataset:
-        print(f"\n✅ Ready for model training!")
-        print(f"Next steps:")
-        print(f"1. Run: python scripts/train_emotion_model.py")
-        print(f"2. Run: python scripts/deploy_models.py")
+    try:
+        print("🚀 Starting FlowState ML training data collection...")
+        
+        # PRIORITY 1: Collect playlist sequences (main training data for queue optimization)
+        print("\n📚 Collecting playlist sequences for queue optimization...")
+        sequences = await collector.collect_playlist_sequences(target_sequences=25)
+        
+        if sequences:
+            # Save sequences dataset
+            sequences_file = collector.data_dir / "playlist_sequences.json"
+            with open(sequences_file, 'w') as f:
+                json.dump({
+                    'metadata': {
+                        'collection_date': time.time(),
+                        'total_sequences': len(sequences),
+                        'purpose': 'queue_optimization_training'
+                    },
+                    'sequences': sequences
+                }, f, indent=2)
+            
+            total_tracks = sum(len(seq['tracks']) for seq in sequences)
+            print(f"✅ Collected {len(sequences)} playlist sequences ({total_tracks} total tracks)")
+            print(f"💾 Saved to: {sequences_file}")
+        
+        # PRIORITY 2: Individual songs (for emotion classification)
+        print(f"\n🎵 Collecting individual songs for emotion modeling...")
+        dataset = await collector.collect_training_dataset(num_songs=30)
+        
+        print(f"\n🎉 Training data collection complete!")
+        
+        if sequences:
+            print(f"📊 Playlist sequences: {len(sequences)} (primary training data)")
+            categories = list(set(seq['category'] for seq in sequences))
+            print(f"📂 Categories: {', '.join(categories[:5])}{'...' if len(categories) > 5 else ''}")
+        
+        if dataset:
+            print(f"🎵 Individual songs: {len(dataset)} (emotion training)")
+        
+        print(f"📁 Data saved in: training_data/")
+        
+        if sequences or dataset:
+            print(f"\n✅ Ready for ML model training!")
+            print(f"Next steps:")
+            print(f"1. Train queue optimization: python scripts/train_queue_model.py")
+            print(f"2. Train emotion model: python scripts/train_emotion_model.py")
+            print(f"3. Deploy models: python scripts/deploy_models.py")
+        else:
+            print(f"\n❌ No data collected - check Spotify API credentials")
+            
+    except Exception as e:
+        print(f"\n❌ Data collection failed: {str(e)}")
+        logger.error(f"Collection error: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     asyncio.run(main())
