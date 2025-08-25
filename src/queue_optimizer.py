@@ -497,29 +497,62 @@ class QueueOptimizer:
         return node
 
     async def _get_sample_songs(self) -> List[Song]:
-        """Get a sample set of songs for MVP testing"""
-        return [
-            Song(id="s1", title="Breathe Me", artist="Sia", duration_ms=257000),
-            Song(id="s2", title="Mad World", artist="Gary Jules", duration_ms=203000),
-            Song(id="s3", title="The Sound of Silence", artist="Simon & Garfunkel", duration_ms=213000),
-            Song(id="s4", title="Hallelujah", artist="Jeff Buckley", duration_ms=367000),
-            Song(id="s5", title="Black", artist="Pearl Jam", duration_ms=343000),
-            Song(id="s6", title="Hurt", artist="Johnny Cash", duration_ms=218000),
-            Song(id="s7", title="Everybody Hurts", artist="R.E.M.", duration_ms=323000),
-            Song(id="s8", title="Tears in Heaven", artist="Eric Clapton", duration_ms=282000),
-            Song(id="s9", title="Skinny Love", artist="Bon Iver", duration_ms=238000),
-            Song(id="s10", title="The Night We Met", artist="Lord Huron", duration_ms=207000),
-            Song(id="s11", title="Shake It Off", artist="Taylor Swift", duration_ms=219000),
-            Song(id="s12", title="Uptown Funk", artist="Bruno Mars", duration_ms=269000),
-            Song(id="s13", title="Happy", artist="Pharrell Williams", duration_ms=233000),
-            Song(id="s14", title="Can't Stop the Feeling", artist="Justin Timberlake", duration_ms=236000),
-            Song(id="s15", title="Good as Hell", artist="Lizzo", duration_ms=219000),
-            Song(id="s16", title="Weightless", artist="Marconi Union", duration_ms=511000),
-            Song(id="s17", title="Clair de Lune", artist="Claude Debussy", duration_ms=300000),
-            Song(id="s18", title="Gymnopédie No. 1", artist="Erik Satie", duration_ms=210000),
-            Song(id="s19", title="Spiegel im Spiegel", artist="Arvo Pärt", duration_ms=480000),
-            Song(id="s20", title="On Earth as It Is in Heaven", artist="Angel", duration_ms=380000)
-        ]
+        """Get a curated set of songs organized by emotional categories for better flow"""
+        
+        # Categorized song database for better emotional flow
+        all_songs = {
+            # Dreamy/Indie Pop (similar to The Marías)
+            "dreamy": [
+                Song(id="d1", title="Hazy", artist="Rosi Golan", duration_ms=245000),
+                Song(id="d2", title="Dreams Tonite", artist="Alvvays", duration_ms=230000),
+                Song(id="d3", title="Myth", artist="Beach House", duration_ms=267000),
+                Song(id="d4", title="Space Song", artist="Beach House", duration_ms=321000),
+                Song(id="d5", title="Supercut", artist="Lorde", duration_ms=267000),
+            ],
+            
+            # Emotional/Melancholic
+            "emotional": [
+                Song(id="e1", title="Breathe Me", artist="Sia", duration_ms=257000),
+                Song(id="e2", title="Mad World", artist="Gary Jules", duration_ms=203000),
+                Song(id="e3", title="Hurt", artist="Johnny Cash", duration_ms=218000),
+                Song(id="e4", title="Everybody Hurts", artist="R.E.M.", duration_ms=323000),
+                Song(id="e5", title="Skinny Love", artist="Bon Iver", duration_ms=238000),
+            ],
+            
+            # High-Energy/Funk
+            "energetic": [
+                Song(id="n1", title="Uptown Funk", artist="Bruno Mars", duration_ms=269000),
+                Song(id="n2", title="Happy", artist="Pharrell Williams", duration_ms=233000),
+                Song(id="n3", title="Good as Hell", artist="Lizzo", duration_ms=219000),
+                Song(id="n4", title="Can't Stop the Feeling", artist="Justin Timberlake", duration_ms=236000),
+                Song(id="n5", title="Shake It Off", artist="Taylor Swift", duration_ms=219000),
+            ],
+            
+            # Classical/Ambient
+            "contemplative": [
+                Song(id="c1", title="Gymnopédie No. 1", artist="Erik Satie", duration_ms=210000),
+                Song(id="c2", title="Spiegel im Spiegel", artist="Arvo Pärt", duration_ms=480000),
+                Song(id="c3", title="Clair de Lune", artist="Claude Debussy", duration_ms=300000),
+                Song(id="c4", title="Weightless", artist="Marconi Union", duration_ms=511000),
+                Song(id="c5", title="Elegy for Dunkirk", artist="Dario Marianelli", duration_ms=72000),
+            ],
+            
+            # Mid-tempo/Transitional
+            "transitional": [
+                Song(id="t1", title="The Night We Met", artist="Lord Huron", duration_ms=207000),
+                Song(id="t2", title="Holocene", artist="Bon Iver", duration_ms=337000),
+                Song(id="t3", title="Flightless Bird", artist="Iron & Wine", duration_ms=236000),
+                Song(id="t4", title="To Build a Home", artist="The Cinematic Orchestra", duration_ms=485000),
+                Song(id="t5", title="Rivers and Roads", artist="The Head and the Heart", duration_ms=333000),
+            ]
+        }
+        
+        # Flatten all songs into a single list
+        sample_songs = []
+        for category_songs in all_songs.values():
+            sample_songs.extend(category_songs)
+        
+        return sample_songs
 
     async def reoptimize_queue(
         self,
